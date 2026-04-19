@@ -1,0 +1,18 @@
+Background image assets
+=======================
+
+scene_forest.png
+scene_hills.png
+scene_castle.png
+scene_desert.png
+
+Source: Kenney "Background Elements" pack
+URL:    https://kenney.nl/assets/background-elements
+License: CC0 1.0 Universal (Public Domain)
+         https://creativecommons.org/publicdomain/zero/1.0/
+
+Files may be used freely in any project, including commercial.
+Attribution appreciated but not required.
+
+(The SwiftUI-drawn scenes — night / rain / snow / home / pond /
+ sunrise — are rendered in code, not from external assets.)

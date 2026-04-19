@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>「墨方」练字 App · 产品洞察报告</title>
+<style>
+  :root{
+    --ink:#1a1a1a;
+    --paper:#faf7f0;
+    --accent:#c0392b;
+    --accent2:#2c3e50;
+    --muted:#6b6b6b;
+    --line:#d9d2c3;
+    --hl:#f6e9c8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family: "PingFang SC","Noto Serif SC","Songti SC", ui-serif, serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:48px 28px 120px}
+  header.hero{
+    border-bottom:2px solid var(--ink);
+    padding-bottom:28px;margin-bottom:40px;
+    display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;
+  }
+  .hero h1{
+    font-size:44px;margin:0 0 6px;letter-spacing:2px;
+    font-weight:700;
+  }
+  .hero .sub{color:var(--muted);font-size:15px;letter-spacing:3px}
+  .seal{
+    display:inline-block;background:var(--accent);color:#fff;
+    padding:10px 14px;font-size:22px;letter-spacing:4px;
+    border-radius:4px;transform:rotate(-4deg);
+    font-family:"Songti SC",serif;font-weight:700;
+    box-shadow:0 2px 0 rgba(0,0,0,.2);
+  }
+  nav.toc{
+    background:#fff;border:1px solid var(--line);
+    padding:16px 20px;border-radius:6px;margin-bottom:40px;
+    font-size:14px;
+  }
+  nav.toc strong{display:block;margin-bottom:6px;letter-spacing:2px}
+  nav.toc ol{margin:0;padding-left:22px;columns:2;column-gap:32px}
+  nav.toc a{color:var(--accent2);text-decoration:none}
+  nav.toc a:hover{text-decoration:underline}
+
+  h2{
+    font-size:26px;margin:56px 0 16px;
+    padding-left:14px;border-left:6px solid var(--accent);
+    letter-spacing:2px;
+  }
+  h3{font-size:19px;margin:28px 0 8px;color:var(--accent2);letter-spacing:1px}
+  h4{font-size:16px;margin:18px 0 6px;color:var(--ink)}
+
+  p{margin:10px 0}
+  blockquote{
+    margin:18px 0;padding:14px 18px;
+    background:var(--hl);border-left:4px solid var(--accent);
+    font-style:italic;color:#5a4a1a;border-radius:0 4px 4px 0;
+  }
+
+  .grid{display:grid;gap:16px}
+  .grid.c2{grid-template-columns:repeat(2,1fr)}
+  .grid.c3{grid-template-columns:repeat(3,1fr)}
+  .grid.c4{grid-template-columns:repeat(4,1fr)}
+  @media (max-width:720px){
+    .grid.c2,.grid.c3,.grid.c4{grid-template-columns:1fr}
+    nav.toc ol{columns:1}
+    .hero h1{font-size:32px}
+  }
+
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:6px;
+    padding:16px 18px;
+  }
+  .card h4{margin-top:0}
+
+  .persona{
+    background:#fff;border:1px solid var(--line);border-radius:6px;
+    padding:18px;display:flex;gap:16px;align-items:flex-start;
+  }
+  .avatar{
+    width:56px;height:56px;flex-shrink:0;border-radius:50%;
+    background:var(--accent2);color:#fff;display:flex;align-items:center;
+    justify-content:center;font-size:24px;font-weight:700;
+  }
+  .persona .meta{font-size:13px;color:var(--muted);margin:2px 0 8px}
+
+  table{
+    width:100%;border-collapse:collapse;margin:14px 0;
+    background:#fff;border:1px solid var(--line);font-size:14px;
+  }
+  th,td{border-bottom:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}
+  th{background:#f3ece0;font-weight:600;letter-spacing:1px}
+  tr:last-child td{border-bottom:none}
+
+  .tag{
+    display:inline-block;font-size:12px;padding:2px 8px;
+    background:#eee;border-radius:99px;color:#333;margin-right:4px;
+  }
+  .tag.hot{background:var(--accent);color:#fff}
+  .tag.cool{background:var(--accent2);color:#fff}
+  .tag.warm{background:#e67e22;color:#fff}
+
+  ul.clean{list-style:none;padding-left:0}
+  ul.clean li{padding:6px 0 6px 22px;position:relative}
+  ul.clean li::before{
+    content:"";position:absolute;left:0;top:15px;
+    width:8px;height:8px;background:var(--accent);
+  }
+
+  .game{
+    background:#fff;border:1px solid var(--line);border-radius:8px;
+    padding:18px;position:relative;overflow:hidden;
+  }
+  .game .num{
+    position:absolute;top:-10px;right:10px;font-size:72px;
+    color:var(--hl);font-weight:900;z-index:0;line-height:1;
+    font-family:serif;
+  }
+  .game > *{position:relative;z-index:1}
+  .game h4{margin:0 0 4px;font-size:17px}
+  .game .mech{font-size:13px;color:var(--muted);margin:4px 0 8px}
+  .game p{font-size:14px;margin:6px 0}
+
+  .pillar{
+    background:linear-gradient(180deg,#fff,#faf3e6);
+    border:1px solid var(--line);border-radius:8px;padding:18px;
+    text-align:center;
+  }
+  .pillar .icon{font-size:36px;margin-bottom:6px}
+  .pillar h4{margin:4px 0 6px;font-size:16px}
+  .pillar p{font-size:13px;color:var(--muted);margin:0}
+
+  .rice{
+    display:inline-block;width:68px;height:68px;position:relative;
+    border:1.5px solid var(--accent);margin-right:14px;vertical-align:middle;
+    background:#fff;
+  }
+  .rice::before,.rice::after{
+    content:"";position:absolute;background:var(--accent);opacity:.45;
+  }
+  .rice::before{left:50%;top:0;bottom:0;width:1px;transform:translateX(-.5px)}
+  .rice::after{top:50%;left:0;right:0;height:1px;transform:translateY(-.5px)}
+  .rice .d1,.rice .d2{position:absolute;inset:0;opacity:.35}
+  .rice .d1{border-top:1px dashed var(--accent);transform:rotate(45deg);transform-origin:center}
+  .rice .d2{border-top:1px dashed var(--accent);transform:rotate(-45deg);transform-origin:center}
+
+  .kpi{
+    display:flex;gap:16px;flex-wrap:wrap;margin:12px 0;
+  }
+  .kpi .box{
+    flex:1;min-width:140px;background:#fff;border:1px solid var(--line);
+    border-radius:6px;padding:14px;text-align:center;
+  }
+  .kpi .num{font-size:28px;font-weight:700;color:var(--accent)}
+  .kpi .lbl{font-size:12px;color:var(--muted);letter-spacing:1px}
+
+  .roadmap{
+    display:flex;gap:10px;overflow-x:auto;padding:8px 0;
+  }
+  .phase{
+    min-width:200px;flex:1;background:#fff;border:1px solid var(--line);
+    border-radius:6px;padding:14px;position:relative;
+  }
+  .phase .p{
+    font-size:11px;letter-spacing:2px;color:#fff;background:var(--accent2);
+    padding:2px 8px;border-radius:99px;display:inline-block;margin-bottom:6px;
+  }
+  .phase.p1 .p{background:var(--accent)}
+  .phase.p2 .p{background:#e67e22}
+  .phase.p3 .p{background:var(--accent2)}
+  .phase.p4 .p{background:#27ae60}
+
+  footer{
+    margin-top:80px;padding-top:24px;border-top:1px solid var(--line);
+    color:var(--muted);font-size:13px;text-align:center;
+  }
+
+  code{
+    background:#f1ead9;padding:1px 6px;border-radius:3px;font-size:13px;
+    font-family:"SF Mono",Menlo,monospace;
+  }
+
+  details{
+    background:#fff;border:1px solid var(--line);border-radius:6px;
+    padding:10px 14px;margin:8px 0;
+  }
+  details summary{cursor:pointer;font-weight:600;letter-spacing:1px}
+  details[open] summary{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div>
+    <h1>墨方 · MoSquare</h1>
+    <div class="sub">一 款 好 玩 的 练 字 App · 产 品 洞 察 报 告</div>
+  </div>
+  <div class="seal">练字 · 玩字</div>
+</header>
+
+<nav class="toc">
+  <strong>目 录</strong>
+  <ol>
+    <li><a href="#insight">一、赛道洞察</a></li>
+    <li><a href="#pain">二、用户与痛点</a></li>
+    <li><a href="#value">三、产品价值主张</a></li>
+    <li><a href="#pillars">四、四大产品支柱</a></li>
+    <li><a href="#zero">★ 五、零基础学习路径（核心）</a></li>
+    <li><a href="#core">六、核心练字体验</a></li>
+    <li><a href="#games">七、十大趣味游戏设计</a></li>
+    <li><a href="#gamification">八、养成与激励系统</a></li>
+    <li><a href="#ai">九、AI 评分与反馈</a></li>
+    <li><a href="#tech">十、技术可行性</a></li>
+    <li><a href="#biz">十一、商业化与风险</a></li>
+    <li><a href="#roadmap">十二、分期 Roadmap</a></li>
+    <li><a href="#next">十三、下一步行动</a></li>
+  </ol>
+</nav>
+
+<!-- ============ 一、赛道洞察 ============ -->
+<h2 id="insight">一、赛道洞察</h2>
+
+<p>"练字"这件事在中文互联网里看似小众，却天然具备 <b>长周期、高复购、强情感</b> 三个特征。它同时横跨三条用户主线：</p>
+
+<div class="grid c3">
+  <div class="card">
+    <h4>① 教育刚需</h4>
+    <p>小学 1–6 年级每册语文都有"写字表"（约 250 字/年），家长愿意为"字写好看"买单。</p>
+  </div>
+  <div class="card">
+    <h4>② 成人焦虑</h4>
+    <p>键盘时代书写能力退化，"提笔忘字 + 字丑"成为中产的隐性焦虑，愿为自我提升付月费。</p>
+  </div>
+  <div class="card">
+    <h4>③ 东方文化</h4>
+    <p>书法 = 放松 + 审美 + 身份标签，和冥想、手帐、绘画同一心理货架，存在跨文化出海可能。</p>
+  </div>
+</div>
+
+<h3>市场格局（截至 2026 Q1 的观察）</h3>
+<table>
+  <tr><th>代表产品</th><th>定位</th><th>优势</th><th>明显短板</th></tr>
+  <tr><td>墨趣书法</td><td>书法工具 + 社区</td><td>字帖全、社区氛围好</td><td>游戏化弱，不吸引小孩</td></tr>
+  <tr><td>练字宝 / 同步字帖</td><td>学生硬笔打卡</td><td>课本同步、家长认可</td><td>UI 老旧、交互单一、无 AI 反馈</td></tr>
+  <tr><td>田字格 / 纸质字帖</td><td>线下老牌</td><td>手感真实</td><td>无反馈、无激励、浪费纸</td></tr>
+  <tr><td>Duolingo（参考系）</td><td>语言打卡</td><td>养成系天花板</td><td>不做中文书写</td></tr>
+</table>
+
+<blockquote>
+  核心洞察：<b>现有练字 App 普遍"字帖数字化 = 给你看 + 给你抄"</b>，几乎没有"<b>反馈—修正—正反馈</b>"的完整闭环，更鲜有把"游戏心流"引入笔画训练的。这恰是缺口。
+</blockquote>
+
+<!-- ============ 二、用户与痛点 ============ -->
+<h2 id="pain">二、用户与痛点</h2>
+
+<div class="grid c2">
+  <div class="persona">
+    <div class="avatar">童</div>
+    <div>
+      <h4>小学生 · 童童（9 岁）</h4>
+      <div class="meta">教育场景 · 被动练习 · 喜欢奖励</div>
+      <p>痛点：抄写枯燥、被妈妈盯、不知道自己哪里写错、一个字写 20 遍依然不会。</p>
+      <p>爽点：收集、闯关、皮肤、段位、和同学 PK。</p>
+    </div>
+  </div>
+  <div class="persona">
+    <div class="avatar">妈</div>
+    <div>
+      <h4>家长 · 林妈妈（38 岁）</h4>
+      <div class="meta">付费决策者 · 效果导向</div>
+      <p>痛点：看不到孩子进步、舍不得买打印机抄字帖、陪练耗时。</p>
+      <p>爽点：每周成长报告、家长群可晒、同步课本。</p>
+    </div>
+  </div>
+  <div class="persona">
+    <div class="avatar">白</div>
+    <div>
+      <h4>白领 · 小夏（27 岁）</h4>
+      <div class="meta">自我提升 · 松弛感</div>
+      <p>痛点：想练字但坚持不了三天、不知从何入手、怕被人看到写得丑。</p>
+      <p>爽点：5 分钟仪式感、作品本、类冥想的专注体验。</p>
+    </div>
+  </div>
+  <div class="persona">
+    <div class="avatar">退</div>
+    <div>
+      <h4>退休书法爱好者 · 老陈（62 岁）</h4>
+      <div class="meta">兴趣深度用户 · 社交</div>
+      <p>痛点：纸墨麻烦、想要专业点评、想和同好交流。</p>
+      <p>爽点：字帖博物馆、真人导师视频、作品上墙。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 三、价值主张 ============ -->
+<h2 id="value">三、产品价值主张（一句话）</h2>
+
+<blockquote style="font-size:18px;font-style:normal;text-align:center">
+  <b>「墨方」</b>让每一次握笔，都像在玩一款让你越玩越安静、越玩越好看的游戏。<br/>
+  <span style="font-size:14px;color:#6b4a00">Practice as play. Handwriting as flow.</span>
+</blockquote>
+
+<p>差异化公式：</p>
+<p style="text-align:center;font-size:16px;letter-spacing:2px">
+  <code>字帖</code> × <code>AI 笔迹评分</code> × <code>轻度游戏化</code> × <code>东方美学</code>
+</p>
+
+<!-- ============ 四、四大支柱 ============ -->
+<h2 id="pillars">四、四大产品支柱</h2>
+
+<div class="grid c4">
+  <div class="pillar">
+    <div class="icon">笔</div>
+    <h4>真·笔迹引擎</h4>
+    <p>高精度压感 + 笔顺 + 形状评分，不是"描红打勾"。</p>
+  </div>
+  <div class="pillar">
+    <div class="icon">局</div>
+    <h4>字帖即关卡</h4>
+    <p>每个字都是一关，每个偏旁都是一类怪，有图鉴、有 Boss。</p>
+  </div>
+  <div class="pillar">
+    <div class="icon">戏</div>
+    <h4>十款趣味小游戏</h4>
+    <p>消消乐、闯关、对战、拼字、侦探……轻量穿插。</p>
+  </div>
+  <div class="pillar">
+    <div class="icon">静</div>
+    <h4>东方松弛美学</h4>
+    <p>米字格、磨墨声、镇纸、装裱——让练字成为一种仪式。</p>
+  </div>
+</div>
+
+<!-- ============ 五、零基础学习路径 ============ -->
+<h2 id="zero">★ 五、零基础学习路径（产品核心）</h2>
+
+<blockquote>
+  <b>核心定位</b>：「墨方」面向<b>从零开始</b>练字的用户——可能是小学生、键盘党白领、或字从小就写不好的成年人。
+  我们<b>不假设</b>用户会正确握笔、不假设认识基本笔画、不假设理解字的结构。
+  产品必须像一位耐心的师傅，从"拿起笔"那一刻开始带。
+</blockquote>
+
+<h3>六级成长体系（从 0 到能写漂亮字）</h3>
+
+<table>
+  <tr>
+    <th>段位</th><th>学什么</th><th>时长参考</th><th>通关标准</th>
+  </tr>
+  <tr>
+    <td><b>L0 · 开蒙</b></td>
+    <td>握笔姿势 / 坐姿 / 运笔方向（配真人短视频 + 手势识别提示）</td>
+    <td>1 节课 · 10 min</td>
+    <td>完成握笔自检 · 通过"横竖拖动测试"</td>
+  </tr>
+  <tr>
+    <td><b>L1 · 八画</b></td>
+    <td>8 种基本笔画：横 · 竖 · 撇 · 捺 · 点 · 提 · 折 · 钩<br/>每种笔画的"起—行—收"三段动作</td>
+    <td>2 周 · 每种 1–2 天</td>
+    <td>每画独立评分 ≥80，笔顺动作正确</td>
+  </tr>
+  <tr>
+    <td><b>L2 · 偏旁</b></td>
+    <td>约 <b>100 个高频偏旁部首</b>（氵亻讠扌宀艹辶 等），理解偏旁的占位比例</td>
+    <td>4 周</td>
+    <td>偏旁写法正确 + 能在米字格中正确占位</td>
+  </tr>
+  <tr>
+    <td><b>L3 · 独体字</b></td>
+    <td>约 <b>200 个独体字</b>（人 · 口 · 日 · 月 · 山 · 水 · 火 · 木…）训练重心与中宫</td>
+    <td>6 周</td>
+    <td>每字评分 ≥85，掌握度算法判断通关</td>
+  </tr>
+  <tr>
+    <td><b>L4 · 结构</b></td>
+    <td>六大结构原理：左右 · 上下 · 包围 · 品字 · 对称 · 穿插</td>
+    <td>8 周</td>
+    <td>每种结构下 5 个示范字通关</td>
+  </tr>
+  <tr>
+    <td><b>L5 · 成字</b></td>
+    <td>常用 1000 字 → 3500 字（小学 + 初中大纲同步）</td>
+    <td>长期</td>
+    <td>按课本单元 / 段位解锁</td>
+  </tr>
+  <tr>
+    <td><b>L6 · 成篇</b></td>
+    <td>段落、古诗、书信格式、签名设计</td>
+    <td>兴趣向</td>
+    <td>无强制目标，做为"作品集"沉淀</td>
+  </tr>
+</table>
+
+<h3>零基础的四条设计铁律</h3>
+<div class="grid c2">
+  <div class="card">
+    <h4>① 永远不让用户"不知道下一步干嘛"</h4>
+    <p>首次打开 → 自动进入 L0 开蒙课，<b>没有主页</b>。主页是完成 L0 后才解锁的奖励。</p>
+  </div>
+  <div class="card">
+    <h4>② 第一堂课必须"爽"而非"教"</h4>
+    <p>L0 不讲理论，让用户<b>写第一笔</b>就能看到墨色在宣纸上洇开、听到毛笔划过纸的声音——先建立情感，再谈技艺。</p>
+  </div>
+  <div class="card">
+    <h4>③ 每一步都能"看见自己进步"</h4>
+    <p>每节课结束给 3 秒对比动画：<b>你第一遍 vs 你现在</b>。这是零基础用户最重要的多巴胺。</p>
+  </div>
+  <div class="card">
+    <h4>④ 允许跳级但不鼓励</h4>
+    <p>提供"我有基础，测一下"入口：写 3 个指定字直接评估到合适段位。避免把老用户劝退，但默认路径仍是从 L0 开始。</p>
+  </div>
+</div>
+
+<h3>零基础用户的首日体验（First-Day Experience）</h3>
+
+<div class="roadmap">
+  <div class="phase p1">
+    <div class="p">0'—1'</div>
+    <h4>欢迎动画</h4>
+    <p>一支笔在宣纸上写出"墨方"两字，用户跟着写任意一笔即进入。</p>
+  </div>
+  <div class="phase p2">
+    <div class="p">1'—3'</div>
+    <h4>握笔教学</h4>
+    <p>30 秒真人短视频 → 调用前摄做简单握笔姿势识别（可跳过）。</p>
+  </div>
+  <div class="phase p3">
+    <div class="p">3'—7'</div>
+    <h4>第一笔 · 横</h4>
+    <p>描红 → 临摹 → 背默三连。完成后解锁勋章"第一笔"。</p>
+  </div>
+  <div class="phase p4">
+    <div class="p">7'—8'</div>
+    <h4>成就 & 路线图</h4>
+    <p>展示完整六级路线图，告诉用户"你已站在 L1 的第 1 笔"，主界面解锁。</p>
+  </div>
+</div>
+
+<blockquote>
+  <b>体验锚点</b>：首日目标不是"练会多少字"，而是让用户说出那句
+  <b style="color:var(--accent)">"原来写字这么舒服，我明天还想来。"</b>
+</blockquote>
+
+<h3>零基础友好的细节清单</h3>
+<ul class="clean">
+  <li><b>放大的田字格</b>：零基础画布尺寸比进阶大 30%，手容易稳。</li>
+  <li><b>笔画方向箭头</b>：描红时用动态箭头引导，一笔写完箭头消失。</li>
+  <li><b>错误不惩罚</b>：写歪了画布不报错，只用柔和黄色光晕提示"试试这个方向"。</li>
+  <li><b>可降速回放</b>：把标准字用 0.5× 速度一笔笔写给你看，像慢动作教练。</li>
+  <li><b>术语翻译</b>：不说"中宫收紧"，说"中间挤紧一点、四周伸展开"。</li>
+  <li><b>家长/自己都能用</b>：如果是家长给孩子用，首次引导询问"谁来练"，不同用户看到不同措辞。</li>
+</ul>
+
+<!-- ============ 六、核心练字体验 ============ -->
+<h2 id="core">六、核心练字体验</h2>
+
+<p>我们把"练一个字"的标准旅程拆成<b>四阶段训练法</b>（借鉴传统书法教学 + 间隔重复）：</p>
+
+<table>
+  <tr><th>阶段</th><th>含义</th><th>玩家做什么</th><th>系统给什么</th></tr>
+  <tr><td><b>① 观 · 看字</b></td><td>解构</td><td>看 3 秒动画演示笔顺、结构线、重心点</td><td>结构讲解卡片（短视频/分步图）</td></tr>
+  <tr><td><b>② 描 · 描红</b></td><td>肌肉记忆</td><td>在灰色笔迹上覆写，系统允许偏差</td><td>笔顺错误即时红点提示</td></tr>
+  <tr><td><b>③ 临 · 临摹</b></td><td>独立书写</td><td>旁边有范字，米字格内写一遍</td><td>AI 评分：形(60%)+顺(20%)+势(20%)</td></tr>
+  <tr><td><b>④ 背 · 背默</b></td><td>掌握</td><td>无范字、白格书写</td><td>掌握度算法：连续 3 次 ≥85 分 = 通关</td></tr>
+</table>
+
+<div style="margin:18px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+  <span class="rice"><span class="d1"></span><span class="d2"></span></span>
+  <span style="color:#5a4a1a">▲ 米字格 + 对角虚线辅助重心判断，关键结构点会高亮（上/中/下三停，左/中/右三等）。</span>
+</div>
+
+<h3>画布的关键细节（对手感至关重要）</h3>
+<ul class="clean">
+  <li><b>压感/速度映射笔画粗细</b>：Apple Pencil / 电容笔走势感，普通手指写用贝塞尔平滑补偿。</li>
+  <li><b>笔迹录制</b>：每一笔都以 <code>[t, x, y, pressure]</code> 时间序列保存，支持"回放你自己的字"。</li>
+  <li><b>可关格子 / 可换字帖底纹</b>：米字、田字、九宫、回宫、方格、素纸六选一。</li>
+  <li><b>墨色 / 纸色主题</b>：徽墨黑、朱砂红、松烟、青绿；宣纸、仿古、毛边纸。</li>
+</ul>
+
+<!-- ============ 六、游戏 ============ -->
+<h2 id="games">六、十大趣味游戏设计</h2>
+
+<p>原则：每个游戏都必须<b>真的在练字</b>（或至少在练字感），而不是用奖励机制劫持玩家。游戏时长控制在 <b>90 秒 – 5 分钟</b>。</p>
+
+<div class="grid c2">
+
+  <div class="game">
+    <div class="num">壹</div>
+    <h4>汉字消消乐 · 部首三消</h4>
+    <div class="mech">玩法类 · 放松向 · 60s / 关</div>
+    <p>棋盘由偏旁碎片组成，三个相同部首连线后"合体"为一个完整字，玩家写出该字加倍得分。既练识字又练书写。</p>
+    <p><span class="tag">识字</span><span class="tag hot">书写</span><span class="tag">休闲</span></p>
+  </div>
+
+  <div class="game">
+    <div class="num">贰</div>
+    <h4>笔顺警察</h4>
+    <div class="mech">观察类 · 益智向</div>
+    <p>系统用动画写出一个字，玩家判断笔顺对/错，错的话指出哪一笔出错。针对常见易错字（"必、female、成、我"等）专项训练。</p>
+    <p><span class="tag cool">笔顺</span><span class="tag">常识</span></p>
+  </div>
+
+  <div class="game">
+    <div class="num">叁</div>
+    <h4>速写达人</h4>
+    <div class="mech">时间压力 · 竞技向 · 60s</div>
+    <p>60 秒内写出尽可能多的合格字（AI 实时评分 ≥70 算过），有连击加成。适合每日签到，带上排行榜。</p>
+    <p><span class="tag hot">每日</span><span class="tag warm">排行榜</span></p>
+  </div>
+
+  <div class="game">
+    <div class="num">肆</div>
+    <h4>书法 Boss 战</h4>
+    <div class="mech">闯关类 · 核心玩法 · 3–5 分钟</div>
+    <p>每个偏旁是一个关卡小怪，每个"结构类型"（上下/左右/包围…）是 Boss。写字评分 = 伤害值。失败会掉落"薄弱点"成为下次练习的弱项。</p>
+    <p><span class="tag hot">核心</span><span class="tag">RPG</span></p>
+  </div>
+
+  <div class="game">
+    <div class="num">伍</div>
+    <h4>部首拼图</h4>
+    <div class="mech">拼装类 · 结构感</div>
+    <p>给一堆偏旁碎片（像七巧板），让玩家在米字格里拖拽组合成目标字。帮助建立"间架结构"直觉，特别适合孩子。</p>
+    <p><span class="tag">结构</span><span class="tag">儿童</span></p>
+  </div>
+
+  <div class="game">
+    <div class="num">陆</div>
+    <h4>错字大侦探</h4>
+    <div class="mech">阅读类 · 认知向</div>
+    <p>短段落里藏 1–3 个错别字/形近字（"已/己"、"戍/戌/戊"），限时找出。找到后要写一遍正确字得分。</p>
+    <p><span class="tag">阅读</span><span class="tag">形近字</span></p>
+  </div>
+
+  <div class="game">
+    <div class="num">柒</div>
+    <h4>字形演变博物馆</h4>
+    <div class="mech">图鉴类 · 文化向</div>
+    <p>给出一个甲骨文/金文/篆书图案，猜出对应现代楷体字。猜对后解锁"字的一生"演变动画，可以收藏入博物馆。</p>
+    <p><span class="tag cool">文化</span><span class="tag">收集</span></p>
+  </div>
+
+  <div class="game">
+    <div class="num">捌</div>
+    <h4>对战书房（1v1）</h4>
+    <div class="mech">PvP · 社交向 · 3 回合</div>
+    <p>双方同字书写，AI 综合评分对比，败方"墨迹"会被胜方收入藏品。可匹配随机对手或邀请好友，段位制。</p>
+    <p><span class="tag hot">PvP</span><span class="tag warm">段位</span></p>
+  </div>
+
+  <div class="game">
+    <div class="num">玖</div>
+    <h4>诗词接龙 · 写诗闯关</h4>
+    <div class="mech">输入类 · 情景化</div>
+    <p>屏幕出现古诗上句，玩家一字一字写出下句，每字评分汇总。过关即可"装裱"全诗成卷轴挂到自己的书房（个人主页）。</p>
+    <p><span class="tag">古诗</span><span class="tag">装裱</span></p>
+  </div>
+
+  <div class="game">
+    <div class="num">拾</div>
+    <h4>静心禅写（Zen Mode）</h4>
+    <div class="mech">放松类 · 无评分 · 5–15 min</div>
+    <p>配心经/道德经/千字文逐字跟写，背景磨墨声 + 木鱼声，无评分无计时，写完自动生成作品图片可保存/分享。</p>
+    <p><span class="tag cool">冥想</span><span class="tag">成年</span></p>
+  </div>
+
+</div>
+
+<blockquote>
+  <b>组合推荐</b>：首页"每日三字"(核心练字) + "每日一战"(速写达人 / 对战) + "每日闲趣"(一款休闲小游戏)，刚好 15 分钟的甜蜜日活时长。
+</blockquote>
+
+<!-- ============ 七、养成系统 ============ -->
+<h2 id="gamification">七、养成与激励系统</h2>
+
+<div class="grid c2">
+  <div class="card">
+    <h4>书房（个人主页）</h4>
+    <p>类似动森岛屿。练字会获得家具：笔筒、镇纸、砚台、屏风、挂轴。作品可挂到墙上供人参观。</p>
+  </div>
+  <div class="card">
+    <h4>段位：白丁 → 童生 → 秀才 → 举人 → 进士 → 翰林 → 状元</h4>
+    <p>段位由综合评分决定，状元榜每周刷新，赛季奖励限定字帖皮肤。</p>
+  </div>
+  <div class="card">
+    <h4>字帖图鉴</h4>
+    <p>常用字 3500 字为主图鉴，每字可查看自己历史得分曲线、最好作品、笔迹回放。</p>
+  </div>
+  <div class="card">
+    <h4>打卡 & 连续日</h4>
+    <p>连续打卡送墨锭，断签可用"补签符"补救，不做 Duolingo 式恐吓，只做温和诱惑。</p>
+  </div>
+  <div class="card">
+    <h4>家长报告（教育线）</h4>
+    <p>每周自动生成孩子进步 PDF：练字时长、掌握字数、典型作品、薄弱字。可直接发家长群。</p>
+  </div>
+  <div class="card">
+    <h4>作品分享卡</h4>
+    <p>自动生成竖版卷轴风格分享图 + 二维码，微信/小红书友好。品牌水印淡雅可隐藏（付费功能）。</p>
+  </div>
+</div>
+
+<!-- ============ 八、AI ============ -->
+<h2 id="ai">八、AI 评分与反馈（产品体感的护城河）</h2>
+
+<p>我们把"字写得好不好"拆成四个可量化维度，用不同算法组合计算：</p>
+
+<table>
+  <tr><th>维度</th><th>权重</th><th>算法思路</th><th>反馈形式</th></tr>
+  <tr><td>形（结构相似度）</td><td>45%</td><td>字形栅格化后 IoU + 重心误差；与标准字对齐</td><td>叠加"标准字半透明红影"对比</td></tr>
+  <tr><td>顺（笔顺正确率）</td><td>20%</td><td>逐笔对比标准笔顺序列；DTW 容忍时序抖动</td><td>错误笔画高亮闪烁 + 语音提示</td></tr>
+  <tr><td>势（笔画流畅）</td><td>20%</td><td>笔画速度方差 + 起笔/收笔角度</td><td>"墨迹回放"展示节奏曲线</图></td></tr>
+  <tr><td>距（结构间距）</td><td>15%</td><td>偏旁占格比例与标准差</td><td>米字格内显示占比标注</td></tr>
+</table>
+
+<details>
+  <summary>▸ 评分公式（供工程/算法参考）</summary>
+  <pre style="white-space:pre-wrap;margin:10px 0 0"><code>
+score = round(
+  0.45 * shape_similarity(user_glyph, std_glyph)   // 0–100
++ 0.20 * stroke_order_match(user_seq, std_seq)    // 0–100
++ 0.20 * stroke_fluency(user_strokes)              // 0–100
++ 0.15 * layout_accuracy(user_bbox, std_bbox)      // 0–100
+)
+// 初期可以不跑神经网络，纯几何特征也能到 ~80% 用户满意度
+  </code></pre>
+</details>
+
+<h3>关键：<span style="color:var(--accent)">永远给可执行的建议，而不是分数</span></h3>
+<p>与其说"你得了 63 分"，不如说：</p>
+<blockquote>
+  "这个『永』字的横太短了，侧点重心偏左。试着把横延长到米字格的 60%，注意点画先左下后右上的角度。"
+</blockquote>
+<p>——这是<b>教练感</b>，也是付费溢价的来源。</p>
+
+<!-- ============ 九、技术 ============ -->
+<h2 id="tech">九、技术可行性</h2>
+
+<h3>推荐技术栈</h3>
+<table>
+  <tr><th>层</th><th>选型</th><th>理由</th></tr>
+  <tr><td>跨端</td><td>Flutter 3（主） / React Native 备选</td><td>Canvas 性能好、Pencil 压感支持成熟、一份代码吃下 iOS / iPad / Android</td></tr>
+  <tr><td>画布</td><td>CustomPainter + 路径平滑（Catmull-Rom）</td><td>原生绘制足够流畅，不需要上 Skia 额外层</td></tr>
+  <tr><td>字形库</td><td>开源：小学常用字 SVG 笔顺库（如 hanzi-writer-data）+ 自建扩充</td><td>规避字体版权，笔顺数据可直接用于 AI 评分</td></tr>
+  <tr><td>AI 评分</td><td>端侧：几何特征；云侧：轻量 CNN 打补丁</td><td>冷启动不依赖服务器，又能渐进变聪明</td></tr>
+  <tr><td>后端</td><td>Node.js (NestJS) + PostgreSQL + Redis</td><td>成熟、招人容易、开发快</td></tr>
+  <tr><td>对象存储</td><td>对象存储 + CDN（笔迹 JSON / 作品图）</td><td>笔迹 20KB/字级别，便宜</td></tr>
+</table>
+
+<h3>数据模型（最小集）</h3>
+<details>
+  <summary>▸ 六张表就能跑起来</summary>
+<pre style="white-space:pre-wrap"><code>
+users(id, nickname, avatar, rank, streak, created_at)
+characters(id, char, unicode, strokes_json, structure, grade, radical)
+attempts(id, user_id, char_id, mode, score_shape, score_order, score_fluency,
+         score_layout, score_total, strokes_blob_url, created_at)
+mastery(user_id, char_id, mastery_level, last_seen_at, next_review_at)
+games(id, type, meta_json) -- 小游戏配置
+game_runs(id, user_id, game_id, score, duration, created_at)
+</code></pre>
+</details>
+
+<h3>性能与手感的几个"魔鬼细节"</h3>
+<ul class="clean">
+  <li>触控到渲染延迟必须 &lt; 16ms，否则"拖墨感"；iPad ProMotion 要打到 120Hz。</li>
+  <li>笔画样条用 <b>Catmull-Rom → Bezier 转换</b>再绘制，避免折线抖动。</li>
+  <li>Apple Pencil 的 <code>altitudeAngle</code> + <code>azimuthAngle</code> 一定要用，做"侧锋"效果。</li>
+  <li>离线优先：字帖、评分模型全部可离线使用，通勤场景必备。</li>
+</ul>
+
+<!-- ============ 十、商业化 ============ -->
+<h2 id="biz">十、商业化与风险</h2>
+
+<h3>商业化设计（非剥削式）</h3>
+<table>
+  <tr><th>形态</th><th>价格参考</th><th>说明</th></tr>
+  <tr><td>免费层</td><td>¥0</td><td>每日 3 字 + 1 款游戏 + 基础评分；足以形成习惯</td></tr>
+  <tr><td>会员 · 墨友</td><td>¥18 / 月 · ¥128 / 年</td><td>全字帖、全游戏、高级 AI 反馈、无广告、作品高清导出</td></tr>
+  <tr><td>家庭版</td><td>¥198 / 年（3 席）</td><td>家长报告 PDF、课本同步、多孩管理</td></tr>
+  <tr><td>皮肤与字帖包</td><td>¥6–¥18 一次性</td><td>名家字帖（需授权）、节气/国潮主题皮肤、限定印章</td></tr>
+  <tr><td>礼品码</td><td>¥128 年卡礼包</td><td>送礼场景，年节增长杠杆</td></tr>
+</table>
+
+<h3>关键风险</h3>
+<div class="grid c2">
+  <div class="card">
+    <h4>⚠ 字体版权</h4>
+    <p>楷体字帖并非都能自由商用。对策：使用思源宋体 / 开源字库 / 自研字形，或与书法家 IP 合作分成。</p>
+  </div>
+  <div class="card">
+    <h4>⚠ 评分不准 = 信任塌方</h4>
+    <p>宁可给分宽松 + 建议精确，也不要苛评。首月上线建议所有分数 -0 / +5 偏正面。</p>
+  </div>
+  <div class="card">
+    <h4>⚠ 成年用户留存</h4>
+    <p>成年人最容易三日弃坑。对策：禅写模式、每日 3 分钟极简闭环，不强求 KPI。</p>
+  </div>
+  <div class="card">
+    <h4>⚠ 家长期望落差</h4>
+    <p>家长花了钱看不到效果会投诉。对策：每周报告是"即使孩子没练也必须有可看的东西"。</p>
+  </div>
+</div>
+
+<!-- ============ 十一、Roadmap ============ -->
+<h2 id="roadmap">十一、分期 Roadmap（建议）</h2>
+
+<div class="roadmap">
+  <div class="phase p1">
+    <div class="p">P1 · 4 周</div>
+    <h4>MVP 单机版</h4>
+    <p>画布、笔顺、描红、临摹、基础几何评分、200 常用字、无账号。</p>
+  </div>
+  <div class="phase p2">
+    <div class="p">P2 · 6 周</div>
+    <h4>游戏与养成</h4>
+    <p>3 款小游戏（消消乐 / 速写 / Boss 战）、段位、书房雏形、云端账号。</p>
+  </div>
+  <div class="phase p3">
+    <div class="p">P3 · 8 周</div>
+    <h4>AI 教练 & 会员</h4>
+    <p>云端深度评分、智能推荐薄弱字、家长报告、会员付费体系、PvP 对战。</p>
+  </div>
+  <div class="phase p4">
+    <div class="p">P4 · 长期</div>
+    <h4>内容生态</h4>
+    <p>名家 IP 合作字帖、课本同步、社区作品广场、出海日本/韩国/华裔。</p>
+  </div>
+</div>
+
+<h3>北极星与健康指标</h3>
+<div class="kpi">
+  <div class="box"><div class="num">15 min</div><div class="lbl">DAU 日均停留</div></div>
+  <div class="box"><div class="num">≥ 35%</div><div class="lbl">D7 留存</div></div>
+  <div class="box"><div class="num">≥ 5%</div><div class="lbl">付费转化</div></div>
+  <div class="box"><div class="num">≥ 4.6</div><div class="lbl">App Store 评分</div></div>
+</div>
+
+<!-- ============ 十二、下一步 ============ -->
+<h2 id="next">十二、下一步行动（建议的三件事）</h2>
+
+<ol>
+  <li><b>出一份交互原型</b>：Figma 画 3 屏（首页 / 练字页 / Boss 战），用于对齐视觉语言。</li>
+  <li><b>技术验证</b>：用 Flutter 做一个能流畅写字 + 保存笔迹 + 几何评分的 Demo（~3 天）。本次已经附带一个 HTML 版 <code>prototype.html</code> 供先体感。</li>
+  <li><b>找 5 个种子用户访谈</b>：2 名家长 + 1 学生 + 1 白领 + 1 书法爱好者，验证"游戏+练字"这件事在他们心里的张力与接受度。</li>
+</ol>
+
+<blockquote>
+  <b>一句话总结</b>：市面上不缺字帖，缺的是一款让你"不忍心关掉"的练字 App。「墨方」的机会就在此。
+</blockquote>
+
+<footer>
+  《墨方 · 产品洞察报告》 · 本报告由 AI 基于用户需求独立生成 · 配套文件：<code>spec.md</code> · <code>prototype.html</code>
+</footer>
+
+</div>
+</body>
+</html>

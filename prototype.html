@@ -1,0 +1,971 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>墨方 · 原型 Demo</title>
+<style>
+  :root{
+    --ink:#1a1a1a;
+    --paper:#faf7f0;
+    --accent:#c0392b;
+    --accent2:#2c3e50;
+    --muted:#8a8370;
+    --line:#d9d2c3;
+    --gold:#b08a3e;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;height:100%;overscroll-behavior:none}
+  body{
+    font-family:"PingFang SC","Songti SC",system-ui,serif;
+    background:linear-gradient(180deg,#f1e9d6 0%,#faf7f0 50%,#f1e9d6 100%);
+    color:var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    min-height:100vh;padding:16px;
+  }
+  .phone{
+    width:390px;max-width:100%;height:min(820px,95vh);
+    background:var(--paper);
+    border-radius:36px;
+    box-shadow:0 30px 60px rgba(0,0,0,.15), 0 0 0 10px #222 inset, 0 0 0 12px #000;
+    overflow:hidden;position:relative;
+    display:flex;flex-direction:column;
+  }
+  .phone header.tbar{
+    flex:0 0 auto;padding:14px 18px 6px;
+    display:flex;align-items:center;justify-content:space-between;
+    border-bottom:1px solid var(--line);background:var(--paper);
+    position:relative;z-index:3;
+  }
+  .logo{font-family:"Songti SC",serif;font-weight:700;font-size:20px;letter-spacing:3px}
+  .logo .seal{background:var(--accent);color:#fff;padding:2px 6px;border-radius:3px;font-size:14px;margin-left:6px;letter-spacing:2px}
+  .streak{font-size:12px;color:var(--muted)}
+  .streak b{color:var(--accent)}
+
+  main.screen{flex:1 1 auto;overflow:hidden;position:relative}
+  .page{position:absolute;inset:0;padding:16px;overflow-y:auto;
+    transition:opacity .3s, transform .3s;
+    opacity:0;transform:translateX(20px);pointer-events:none;
+  }
+  .page.active{opacity:1;transform:none;pointer-events:auto}
+
+  nav.tabs{
+    flex:0 0 auto;display:flex;border-top:1px solid var(--line);background:var(--paper);
+  }
+  nav.tabs button{
+    flex:1;background:none;border:none;padding:10px 4px 14px;
+    font-family:inherit;font-size:12px;color:var(--muted);cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:2px;letter-spacing:1px;
+  }
+  nav.tabs button .ico{font-size:20px}
+  nav.tabs button.on{color:var(--accent);font-weight:600}
+
+  /* ---------- 共用 ---------- */
+  h2.title{font-size:20px;margin:6px 0 14px;letter-spacing:2px;border-left:4px solid var(--accent);padding-left:8px}
+  p.hint{font-size:13px;color:var(--muted);margin:4px 0 14px;line-height:1.6}
+  .btn{
+    display:inline-block;padding:12px 20px;border-radius:99px;
+    background:var(--ink);color:#fff;border:none;cursor:pointer;
+    font-family:inherit;font-size:15px;letter-spacing:2px;
+  }
+  .btn.red{background:var(--accent)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+  .btn.sm{padding:8px 14px;font-size:13px}
+
+  /* ---------- 首页 ---------- */
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:14px;
+    padding:16px;margin-bottom:14px;
+  }
+  .card.hero{
+    background:linear-gradient(135deg,#1a1a1a,#3a3a3a);
+    color:#fff;border:none;position:relative;overflow:hidden;
+  }
+  .card.hero::after{
+    content:"墨";position:absolute;right:-10px;bottom:-30px;font-size:180px;
+    color:rgba(255,255,255,.05);font-family:"Songti SC",serif;
+  }
+  .card.hero .tag{font-size:11px;letter-spacing:2px;opacity:.8}
+  .card.hero h3{margin:6px 0 4px;font-size:22px;letter-spacing:2px}
+  .card.hero p{margin:0 0 14px;font-size:13px;opacity:.8}
+  .card.hero button{background:var(--accent);color:#fff;border:none;border-radius:99px;padding:10px 18px;font-family:inherit;font-size:13px;letter-spacing:2px}
+
+  .level-strip{display:flex;gap:6px;margin:10px 0 16px}
+  .level-strip .lv{
+    flex:1;text-align:center;padding:10px 4px;border-radius:8px;
+    background:#fff;border:1px solid var(--line);font-size:12px;
+    color:var(--muted);position:relative;
+  }
+  .level-strip .lv b{display:block;font-size:16px;color:var(--ink);margin-bottom:2px}
+  .level-strip .lv.done{background:#efe6d3;color:var(--ink)}
+  .level-strip .lv.done b{color:var(--accent)}
+  .level-strip .lv.cur{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .level-strip .lv.cur b{color:#fff}
+
+  .games{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .games .g{
+    background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;
+    cursor:pointer;transition:transform .15s;
+  }
+  .games .g:active{transform:scale(.97)}
+  .games .g h4{margin:0;font-size:15px;letter-spacing:1px}
+  .games .g p{margin:2px 0 0;font-size:11px;color:var(--muted)}
+
+  /* ---------- 引导 ---------- */
+  .onboard{
+    position:absolute;inset:0;background:linear-gradient(180deg,#1a1a1a,#3a3a3a);
+    color:#fff;z-index:10;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;padding:30px;text-align:center;
+    transition:opacity .4s;
+  }
+  .onboard.hide{opacity:0;pointer-events:none}
+  .onboard h1{font-family:"Songti SC",serif;font-size:52px;letter-spacing:10px;margin:0 0 8px}
+  .onboard .brush{font-size:14px;opacity:.7;letter-spacing:3px;margin-bottom:40px}
+  .onboard .steps{font-size:12px;opacity:.6;letter-spacing:2px;margin-top:20px}
+  .onboard button{margin-top:20px}
+
+  /* ---------- 练字页 ---------- */
+  .practice-wrap{display:flex;flex-direction:column;gap:10px;height:100%}
+  .practice-header{display:flex;justify-content:space-between;align-items:center}
+  .practice-header .stage{font-size:14px;color:var(--muted);letter-spacing:1px}
+  .practice-header .stage b{color:var(--ink);font-size:18px;margin-right:6px}
+  .canvas-box{
+    aspect-ratio:1/1;position:relative;background:#fff;
+    border:1px solid var(--line);border-radius:10px;overflow:hidden;
+    touch-action:none;user-select:none;
+  }
+  canvas{position:absolute;inset:0;width:100%;height:100%}
+  .stage-sel{display:flex;gap:6px;flex-wrap:wrap}
+  .stage-sel .s{
+    flex:1;min-width:calc(25% - 6px);text-align:center;padding:8px 0;
+    background:#fff;border:1px solid var(--line);border-radius:6px;
+    font-size:18px;font-family:"Songti SC",serif;cursor:pointer;
+  }
+  .stage-sel .s.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .stage-sel .s.done{background:#efe6d3;color:var(--accent)}
+  .mode-row{display:flex;gap:8px;justify-content:center;font-size:12px;color:var(--muted);letter-spacing:2px}
+  .mode-row span{padding:4px 10px;border-radius:99px;background:#eee3cf;cursor:pointer}
+  .mode-row span.on{background:var(--ink);color:#fff}
+  .controls{display:flex;gap:8px;justify-content:space-between}
+  .score-sheet{
+    background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;
+    font-size:13px;line-height:1.6;
+  }
+  .score-sheet .score{
+    font-size:44px;font-weight:700;color:var(--accent);
+    font-family:"Songti SC",serif;letter-spacing:2px;
+  }
+  .score-sheet .score small{font-size:14px;color:var(--muted);margin-left:4px}
+  .score-sheet .bars{display:grid;grid-template-columns:auto 1fr auto;gap:4px 8px;margin:8px 0}
+  .score-sheet .bars .bar{background:#eee;border-radius:99px;height:6px;align-self:center;overflow:hidden}
+  .score-sheet .bars .bar i{display:block;height:100%;background:var(--accent)}
+  .score-sheet .msg{color:var(--accent2);font-style:italic;font-size:12px}
+
+  /* ---------- 游戏：速写 ---------- */
+  .gm-speed{display:flex;flex-direction:column;gap:10px;height:100%}
+  .gm-speed .status{
+    display:flex;justify-content:space-between;align-items:center;
+    background:var(--ink);color:#fff;border-radius:10px;padding:10px 14px;
+    letter-spacing:2px;
+  }
+  .gm-speed .status .t{font-size:20px;font-family:"Songti SC",serif;color:#f5d37a}
+  .gm-speed .target{
+    text-align:center;font-family:"STKaiti","Songti SC",serif;
+    font-size:60px;color:var(--muted);letter-spacing:0;line-height:1;
+    padding:6px 0;
+  }
+  .gm-speed .target b{color:var(--accent);font-size:80px}
+  .gm-over{
+    background:var(--paper);text-align:center;padding:30px;
+    border:1px solid var(--line);border-radius:12px;
+  }
+  .gm-over .big{font-size:54px;color:var(--accent);font-family:"Songti SC",serif}
+  .gm-over .sub{color:var(--muted);margin:6px 0 16px}
+
+  /* ---------- 游戏：笔顺 ---------- */
+  .gm-cop{display:flex;flex-direction:column;gap:10px;height:100%}
+  .gm-cop .q{
+    background:#fff;border:1px solid var(--line);border-radius:12px;
+    padding:14px;text-align:center;
+  }
+  .gm-cop .q .demo-char{
+    font-family:"STKaiti",serif;font-size:100px;color:var(--ink);
+    line-height:1;margin:0;position:relative;display:inline-block;
+  }
+  .gm-cop .q .demo-char span{
+    display:inline-block;transition:opacity .3s;
+  }
+  .gm-cop .choices{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .gm-cop .choice{
+    background:#fff;border:1px solid var(--line);border-radius:10px;
+    padding:14px;text-align:center;cursor:pointer;font-size:14px;letter-spacing:2px;
+  }
+  .gm-cop .choice.correct{background:#2ecc71;color:#fff;border-color:#2ecc71}
+  .gm-cop .choice.wrong{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  /* ---------- 书房 ---------- */
+  .room-top{
+    background:linear-gradient(135deg,#2c3e50,#1a1a1a);
+    color:#fff;border-radius:14px;padding:18px;margin-bottom:12px;
+    position:relative;overflow:hidden;
+  }
+  .room-top .rank{
+    display:inline-block;background:var(--gold);color:#1a1a1a;font-weight:700;
+    padding:2px 10px;border-radius:99px;font-size:12px;letter-spacing:2px;
+  }
+  .room-top h3{margin:10px 0 4px;font-size:22px}
+  .room-top p{font-size:12px;opacity:.8;margin:0}
+  .wall{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .wall .w{
+    aspect-ratio:3/4;background:#fff;border:1px solid var(--line);border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:"STKaiti",serif;font-size:40px;color:var(--ink);
+    position:relative;
+  }
+  .wall .w small{position:absolute;bottom:2px;right:4px;font-size:9px;color:var(--accent);letter-spacing:1px}
+  .badges{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+  .badges .b{
+    aspect-ratio:1;background:#fff;border:1px solid var(--line);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+    font-size:10px;color:var(--muted);
+  }
+  .badges .b.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .badges .b b{font-size:14px;font-family:"Songti SC",serif}
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:absolute;bottom:80px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;padding:8px 14px;border-radius:99px;
+    font-size:12px;letter-spacing:2px;z-index:20;
+    opacity:0;pointer-events:none;transition:opacity .3s;
+  }
+  .toast.show{opacity:1}
+
+  /* ---------- 小字体 ---------- */
+  .tip-pill{
+    display:inline-block;background:#f5e8c8;color:#6b4a00;
+    padding:4px 10px;border-radius:99px;font-size:11px;letter-spacing:1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone" id="phone">
+
+  <!-- 开场 -->
+  <div class="onboard" id="onboard">
+    <h1>墨方</h1>
+    <div class="brush">零 基 础 练 字 · 从 第 一 笔 开 始</div>
+    <div style="font-family:'STKaiti',serif;font-size:72px;letter-spacing:6px;color:#f5d37a">一 二 三</div>
+    <div class="steps">① 观字 · ② 描红 · ③ 临摹 · ④ 背默</div>
+    <button class="btn red" onclick="skipOnboard()">写下第一笔 →</button>
+  </div>
+
+  <!-- 顶栏 -->
+  <header class="tbar">
+    <div class="logo">墨方<span class="seal">零基础</span></div>
+    <div class="streak">🔥 连续 <b>1</b> 天</div>
+  </header>
+
+  <main class="screen">
+
+    <!-- 首页 -->
+    <section class="page active" id="p-home">
+      <div class="card hero">
+        <div class="tag">今日学习 · L1 八画</div>
+        <h3>第二笔 · 竖</h3>
+        <p>学会"竖"，就掌握了汉字的骨架。预计 3 分钟。</p>
+        <button onclick="goPractice('竖')">开始练习</button>
+      </div>
+
+      <div style="font-size:12px;letter-spacing:2px;color:var(--muted);margin:6px 0 6px">我的路径</div>
+      <div class="level-strip">
+        <div class="lv done"><b>L0</b>开蒙</div>
+        <div class="lv cur"><b>L1</b>八画</div>
+        <div class="lv"><b>L2</b>偏旁</div>
+        <div class="lv"><b>L3</b>独体</div>
+        <div class="lv"><b>L4</b>结构</div>
+        <div class="lv"><b>L5</b>成字</div>
+      </div>
+
+      <div style="font-size:12px;letter-spacing:2px;color:var(--muted);margin:6px 0 6px">来玩一局</div>
+      <div class="games">
+        <div class="g" onclick="goGame('speed')">
+          <h4>速写达人</h4>
+          <p>60 秒写尽可能多的字</p>
+        </div>
+        <div class="g" onclick="goGame('cop')">
+          <h4>笔顺警察</h4>
+          <p>找出笔顺写错的字</p>
+        </div>
+        <div class="g" onclick="toast('部首拼图 敬请期待')">
+          <h4>部首拼图</h4>
+          <p>把碎片拼成完整字</p>
+        </div>
+        <div class="g" onclick="toast('禅写模式 敬请期待')">
+          <h4>静心禅写</h4>
+          <p>无评分 · 心经跟写</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 练字 -->
+    <section class="page" id="p-practice">
+      <div class="practice-wrap">
+        <div class="practice-header">
+          <div class="stage"><b id="curChar">横</b><span id="curLabel">L1-1</span></div>
+          <button class="btn sm ghost" onclick="go('p-home')">← 返回</button>
+        </div>
+
+        <div class="stage-sel" id="stageSel"></div>
+
+        <div class="mode-row">
+          <span data-mode="watch">观</span>
+          <span data-mode="trace" class="on">描</span>
+          <span data-mode="copy">临</span>
+          <span data-mode="blank">背</span>
+        </div>
+
+        <div class="canvas-box" id="cbox">
+          <canvas id="gridCanvas"></canvas>
+          <canvas id="guideCanvas"></canvas>
+          <canvas id="inkCanvas"></canvas>
+        </div>
+
+        <div class="controls">
+          <button class="btn ghost sm" onclick="clearInk()">清 除</button>
+          <button class="btn ghost sm" onclick="undoStroke()">撤 销</button>
+          <button class="btn red sm" onclick="submitWrite()">交作业</button>
+        </div>
+
+        <div class="score-sheet" id="scoreSheet" style="display:none"></div>
+
+        <div class="tip-pill" id="tipPill">先看灰色笔迹走向，顺着方向覆写</div>
+      </div>
+    </section>
+
+    <!-- 游戏：速写 -->
+    <section class="page" id="p-speed">
+      <div class="gm-speed">
+        <div class="practice-header">
+          <div class="stage">🏆 速写达人</div>
+          <button class="btn sm ghost" onclick="exitSpeed()">← 退出</button>
+        </div>
+        <div class="status">
+          <span>得 分 <b id="speedScore">0</b></span>
+          <span class="t" id="speedTime">60"</span>
+          <span>连 击 x<b id="speedCombo">0</b></span>
+        </div>
+        <div class="target">当前 <b id="speedChar">人</b></div>
+        <div class="canvas-box" id="cbox2" style="flex:0 0 auto">
+          <canvas id="gridCanvas2"></canvas>
+          <canvas id="guideCanvas2"></canvas>
+          <canvas id="inkCanvas2"></canvas>
+        </div>
+        <div class="controls">
+          <button class="btn ghost sm" onclick="clearInk2()">清 除</button>
+          <button class="btn red sm" onclick="submitSpeed()">下一个</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 游戏：笔顺 -->
+    <section class="page" id="p-cop">
+      <div class="gm-cop">
+        <div class="practice-header">
+          <div class="stage">🕵 笔顺警察 · 第 <b id="copQ">1</b>/5 题</div>
+          <button class="btn sm ghost" onclick="go('p-home')">← 退出</button>
+        </div>
+        <div class="q">
+          <div class="demo-char" id="copChar"></div>
+          <p class="hint" id="copHint">请观察笔顺 · 判断对错</p>
+          <button class="btn sm" id="copReplay" onclick="copReplay()">▷ 重播</button>
+        </div>
+        <div class="choices">
+          <div class="choice" onclick="copAnswer(true)">✓ 笔顺正确</div>
+          <div class="choice" onclick="copAnswer(false)">✗ 笔顺有错</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 书房 -->
+    <section class="page" id="p-room">
+      <h2 class="title">我 的 书 房</h2>
+      <div class="room-top">
+        <span class="rank">段位 · 童生</span>
+        <h3>新同学</h3>
+        <p>已练 1 天 · 已掌握 2 笔画 · 综合评分 82</p>
+      </div>
+
+      <div style="font-size:12px;letter-spacing:2px;color:var(--muted);margin:14px 0 6px">作品墙</div>
+      <div class="wall">
+        <div class="w">一<small>92</small></div>
+        <div class="w">二<small>88</small></div>
+        <div class="w">—<small>?</small></div>
+        <div class="w">—<small>?</small></div>
+        <div class="w">—<small>?</small></div>
+        <div class="w">—<small>?</small></div>
+      </div>
+
+      <div style="font-size:12px;letter-spacing:2px;color:var(--muted);margin:14px 0 6px">勋章</div>
+      <div class="badges">
+        <div class="b on"><b>始</b>第一笔</div>
+        <div class="b on"><b>勤</b>连签 1 日</div>
+        <div class="b"><b>熟</b>连签 7 日</div>
+        <div class="b"><b>雅</b>单字 ≥95</div>
+        <div class="b"><b>速</b>速写 ≥20</div>
+        <div class="b"><b>察</b>笔顺满分</div>
+        <div class="b"><b>临</b>完成 L1</div>
+        <div class="b"><b>成</b>完成 L3</div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="tabs">
+    <button class="on" data-page="p-home"><span class="ico">礻</span>今日</button>
+    <button data-page="p-practice"><span class="ico">笔</span>练字</button>
+    <button data-page="p-room"><span class="ico">舍</span>书房</button>
+  </nav>
+
+  <div class="toast" id="toast">提示</div>
+</div>
+
+<script>
+/* ============================================================
+   墨方 · 原型 Demo 逻辑（纯 JS，无依赖）
+   包含：引导、画布、评分、速写游戏、笔顺警察
+   ============================================================ */
+
+// ---------- 导航 ----------
+const pages = Array.from(document.querySelectorAll('.page'));
+const tabs  = Array.from(document.querySelectorAll('nav.tabs button'));
+function go(id){
+  pages.forEach(p=>p.classList.toggle('active', p.id===id));
+  tabs.forEach(t=>t.classList.toggle('on', t.dataset.page===id));
+  // 进入页面时按需初始化画布尺寸
+  requestAnimationFrame(()=>{
+    if(id==='p-practice') initPracticeCanvas();
+    if(id==='p-speed')    initSpeedCanvas();
+  });
+}
+tabs.forEach(t=>t.addEventListener('click',()=>go(t.dataset.page)));
+function skipOnboard(){ document.getElementById('onboard').classList.add('hide'); }
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>t.classList.remove('show'), 1500);
+}
+
+// ---------- 八画数据（简化版笔画形状，相对坐标 0-1） ----------
+const STROKES = {
+  '横': [{path:[[.18,.5],[.82,.5]], dir:'→', tip:'起笔略顿，匀速向右，收笔回锋。'}],
+  '竖': [{path:[[.5,.15],[.5,.85]], dir:'↓', tip:'竖要正、稳，像一根柱子立着。'}],
+  '撇': [{path:[[.68,.2],[.25,.85]], dir:'↙', tip:'从右上往左下，渐细。'}],
+  '捺': [{path:[[.30,.25],[.78,.82]], dir:'↘', tip:'从左上往右下，末端平顿。'}],
+  '点': [{path:[[.48,.35],[.58,.52]], dir:'●', tip:'起笔轻、中段重、收笔尖。'}],
+  '提': [{path:[[.25,.65],[.8,.35]], dir:'↗', tip:'从左下到右上，快出锋。'}],
+  '折': [{path:[[.2,.3],[.8,.3],[.8,.78]], dir:'→↓', tip:'先横后竖，转折要有力。'}],
+  '钩': [{path:[[.5,.15],[.5,.78],[.3,.62]], dir:'↓↖', tip:'竖到末端顿笔后向左上勾出。'}]
+};
+const STROKE_ORDER = ['横','竖','撇','捺','点','提','折','钩'];
+const STAGES_DONE = { '横': true }; // L1-1 已完成
+
+// ---------- 当前练字状态 ----------
+let CURRENT_CHAR = '竖';
+let CURRENT_MODE = 'trace';
+
+// 初始化 stage 选择条
+function buildStageSel(){
+  const box = document.getElementById('stageSel');
+  box.innerHTML = '';
+  STROKE_ORDER.forEach(c=>{
+    const d = document.createElement('div');
+    d.className = 's' + (c===CURRENT_CHAR?' on':'') + (STAGES_DONE[c]?' done':'');
+    d.textContent = c;
+    d.onclick = ()=>{ CURRENT_CHAR=c; goPractice(c); };
+    box.appendChild(d);
+  });
+}
+
+// 模式切换
+document.querySelectorAll('.mode-row span').forEach(s=>{
+  s.onclick = ()=>{
+    document.querySelectorAll('.mode-row span').forEach(x=>x.classList.remove('on'));
+    s.classList.add('on');
+    CURRENT_MODE = s.dataset.mode;
+    updateGuide();
+    updateTip();
+    clearInk();
+    if(CURRENT_MODE==='watch') playDemo();
+  };
+});
+
+function goPractice(char){
+  CURRENT_CHAR = char || '竖';
+  document.getElementById('curChar').textContent = CURRENT_CHAR;
+  document.getElementById('curLabel').textContent = 'L1 · 第 ' + (STROKE_ORDER.indexOf(CURRENT_CHAR)+1) + ' 笔';
+  go('p-practice');
+  buildStageSel();
+  clearInk();
+  updateGuide();
+  updateTip();
+  document.getElementById('scoreSheet').style.display='none';
+}
+
+function updateTip(){
+  const tip = STROKES[CURRENT_CHAR]?.[0]?.tip || '';
+  const map = {watch:'▷ 正在观摩笔顺动画', trace:'先看灰色笔迹走向，顺着方向覆写', copy:'凭感觉独立写，系统会给反馈', blank:'不看范字，凭记忆书写'};
+  document.getElementById('tipPill').textContent = map[CURRENT_MODE] + ' · ' + tip;
+}
+
+// ---------- 画布系统（可复用） ----------
+class InkCanvas {
+  constructor(gridId, guideId, inkId, boxId){
+    this.grid = document.getElementById(gridId);
+    this.guide = document.getElementById(guideId);
+    this.ink = document.getElementById(inkId);
+    this.box = document.getElementById(boxId);
+    this.strokes = [];
+    this.current = null;
+    this.bind();
+  }
+  resize(){
+    const dpr = window.devicePixelRatio||1;
+    const w = this.box.clientWidth, h = this.box.clientHeight;
+    [this.grid,this.guide,this.ink].forEach(c=>{
+      c.width = w*dpr; c.height = h*dpr;
+      c.getContext('2d').setTransform(dpr,0,0,dpr,0,0);
+    });
+    this.w = w; this.h = h;
+    this.drawGrid();
+  }
+  drawGrid(){
+    const c = this.grid, g = c.getContext('2d');
+    g.clearRect(0,0,this.w,this.h);
+    g.strokeStyle='rgba(192,57,43,.45)';
+    g.lineWidth=1;
+    g.strokeRect(2,2,this.w-4,this.h-4);
+    g.beginPath();
+    g.moveTo(this.w/2,2); g.lineTo(this.w/2,this.h-2);
+    g.moveTo(2,this.h/2); g.lineTo(this.w-2,this.h/2);
+    g.stroke();
+    g.setLineDash([4,4]);
+    g.strokeStyle='rgba(192,57,43,.25)';
+    g.beginPath();
+    g.moveTo(2,2); g.lineTo(this.w-2,this.h-2);
+    g.moveTo(this.w-2,2); g.lineTo(2,this.h-2);
+    g.stroke();
+    g.setLineDash([]);
+  }
+  drawGuide(stroke){
+    const c = this.guide, g = c.getContext('2d');
+    g.clearRect(0,0,this.w,this.h);
+    if(!stroke) return;
+    g.strokeStyle='rgba(0,0,0,.18)';
+    g.lineWidth=22;
+    g.lineCap='round'; g.lineJoin='round';
+    g.beginPath();
+    stroke.path.forEach((p,i)=>{
+      const x=p[0]*this.w, y=p[1]*this.h;
+      if(i===0) g.moveTo(x,y); else g.lineTo(x,y);
+    });
+    g.stroke();
+  }
+  drawArrow(stroke){
+    const c = this.guide, g = c.getContext('2d');
+    if(!stroke) return;
+    const last = stroke.path[stroke.path.length-1];
+    const prev = stroke.path[stroke.path.length-2] || stroke.path[0];
+    const x = last[0]*this.w, y = last[1]*this.h;
+    const ang = Math.atan2(last[1]-prev[1], last[0]-prev[0]);
+    g.save(); g.translate(x,y); g.rotate(ang);
+    g.fillStyle='var(--accent)'.replace('var(--accent)','#c0392b');
+    g.beginPath(); g.moveTo(0,0); g.lineTo(-14,-7); g.lineTo(-10,0); g.lineTo(-14,7); g.closePath(); g.fill();
+    g.restore();
+  }
+  clear(){
+    this.strokes = [];
+    this.current = null;
+    const g = this.ink.getContext('2d');
+    g.clearRect(0,0,this.w,this.h);
+  }
+  undo(){
+    this.strokes.pop();
+    this.redraw();
+  }
+  redraw(){
+    const g = this.ink.getContext('2d');
+    g.clearRect(0,0,this.w,this.h);
+    this.strokes.forEach(s=>this._paint(g,s));
+  }
+  _paint(g, stroke){
+    if(stroke.length<2) return;
+    g.strokeStyle='#111';
+    g.lineCap='round'; g.lineJoin='round';
+    for(let i=1;i<stroke.length;i++){
+      const a=stroke[i-1], b=stroke[i];
+      g.lineWidth = 4 + (b.pressure||0.5)*14;
+      g.beginPath(); g.moveTo(a.x,a.y); g.lineTo(b.x,b.y); g.stroke();
+    }
+  }
+  bind(){
+    const getPoint = (e)=>{
+      const r = this.ink.getBoundingClientRect();
+      const t = e.touches?e.touches[0]:e;
+      return { x:t.clientX-r.left, y:t.clientY-r.top, pressure: (t.force||0.5) };
+    };
+    const down = (e)=>{
+      e.preventDefault();
+      const p = getPoint(e);
+      this.current = [{...p, t:Date.now()}];
+      this.strokes.push(this.current);
+      this.lastTime = Date.now();
+      this.lastPt = p;
+    };
+    const move = (e)=>{
+      if(!this.current) return;
+      e.preventDefault();
+      const p = getPoint(e);
+      const dt = Math.max(1,Date.now()-this.lastTime);
+      const d = Math.hypot(p.x-this.lastPt.x, p.y-this.lastPt.y);
+      const speed = d/dt;
+      p.pressure = Math.max(.25, Math.min(1, 1 - speed*0.35));
+      this.current.push({...p, t:Date.now()});
+      this.lastTime = Date.now(); this.lastPt = p;
+      // 增量绘制
+      const g = this.ink.getContext('2d');
+      const arr = this.current;
+      const a = arr[arr.length-2], b = arr[arr.length-1];
+      g.strokeStyle='#111'; g.lineCap='round'; g.lineJoin='round';
+      g.lineWidth = 4 + (b.pressure||0.5)*14;
+      g.beginPath(); g.moveTo(a.x,a.y); g.lineTo(b.x,b.y); g.stroke();
+    };
+    const up = (e)=>{
+      if(!this.current) return;
+      this.current = null;
+      if(this.onStrokeEnd) this.onStrokeEnd(this.strokes);
+    };
+    this.ink.addEventListener('mousedown',down);
+    window.addEventListener('mousemove',move);
+    window.addEventListener('mouseup',up);
+    this.ink.addEventListener('touchstart',down,{passive:false});
+    this.ink.addEventListener('touchmove',move,{passive:false});
+    this.ink.addEventListener('touchend',up);
+  }
+}
+
+let practiceCanvas, speedCanvas;
+function initPracticeCanvas(){
+  if(!practiceCanvas){
+    practiceCanvas = new InkCanvas('gridCanvas','guideCanvas','inkCanvas','cbox');
+  }
+  practiceCanvas.resize();
+  updateGuide();
+}
+function initSpeedCanvas(){
+  if(!speedCanvas){
+    speedCanvas = new InkCanvas('gridCanvas2','guideCanvas2','inkCanvas2','cbox2');
+  }
+  speedCanvas.resize();
+}
+window.addEventListener('resize',()=>{
+  practiceCanvas?.resize();
+  speedCanvas?.resize();
+  updateGuide();
+});
+
+function updateGuide(){
+  if(!practiceCanvas) return;
+  const stroke = STROKES[CURRENT_CHAR]?.[0];
+  if(CURRENT_MODE==='trace' || CURRENT_MODE==='watch'){
+    practiceCanvas.drawGuide(stroke);
+    practiceCanvas.drawArrow(stroke);
+  } else if(CURRENT_MODE==='copy'){
+    practiceCanvas.drawGuide({...stroke, path:stroke.path});
+    const g = practiceCanvas.guide.getContext('2d');
+    g.globalAlpha = 0.4;
+    // 保留描红但透明一点
+  } else {
+    const g = practiceCanvas.guide.getContext('2d');
+    g.clearRect(0,0,practiceCanvas.w,practiceCanvas.h);
+  }
+}
+function clearInk(){ practiceCanvas?.clear(); document.getElementById('scoreSheet').style.display='none'; }
+function undoStroke(){ practiceCanvas?.undo(); }
+
+function playDemo(){
+  if(!practiceCanvas) return;
+  practiceCanvas.clear();
+  const stroke = STROKES[CURRENT_CHAR]?.[0];
+  if(!stroke) return;
+  const pts = [];
+  const path = stroke.path;
+  const steps = 40;
+  for(let i=0;i<=steps;i++){
+    const t = i/steps;
+    // 沿路径均匀采样
+    const segs = path.length-1;
+    const segT = t*segs;
+    const si = Math.min(segs-1, Math.floor(segT));
+    const lt = segT - si;
+    const a = path[si], b = path[si+1];
+    pts.push({
+      x: (a[0]+(b[0]-a[0])*lt)*practiceCanvas.w,
+      y: (a[1]+(b[1]-a[1])*lt)*practiceCanvas.h,
+      pressure: 0.6
+    });
+  }
+  let i=0;
+  const g = practiceCanvas.ink.getContext('2d');
+  g.clearRect(0,0,practiceCanvas.w,practiceCanvas.h);
+  const tick = ()=>{
+    if(i>=pts.length-1) return;
+    const a=pts[i], b=pts[i+1];
+    g.strokeStyle='#111'; g.lineCap='round';
+    g.lineWidth = 4 + (b.pressure||0.5)*14;
+    g.beginPath(); g.moveTo(a.x,a.y); g.lineTo(b.x,b.y); g.stroke();
+    i++; setTimeout(tick,30);
+  };
+  tick();
+}
+
+// ---------- 评分（简化几何） ----------
+function scoreStroke(userStrokes, char){
+  const std = STROKES[char]?.[0];
+  if(!std) return {total:80, shape:80, order:80, fluency:80, layout:80, msg:'继续保持'};
+  // 合并所有用户笔画的点集
+  const all = userStrokes.flat();
+  if(all.length<4) return null;
+
+  // 将点归一化到 0-1
+  const W = practiceCanvas?.w || 320;
+  const H = practiceCanvas?.h || 320;
+
+  // shape: 对比起终点和平均走向
+  const s = std.path[0], e = std.path[std.path.length-1];
+  const us = all[0], ue = all[all.length-1];
+  const d1 = Math.hypot(us.x/W-s[0], us.y/H-s[1]);
+  const d2 = Math.hypot(ue.x/W-e[0], ue.y/H-e[1]);
+  const shape = Math.round(Math.max(0, 100 - (d1+d2)*180));
+
+  // order: 笔画数
+  const expected = std.path.length-1 >= 2 ? 1 : 1; // 这里都按 1 笔
+  const actualStrokes = userStrokes.length;
+  const order = actualStrokes === 1 ? 95 : Math.max(40, 95 - Math.abs(actualStrokes-1)*25);
+
+  // fluency: 速度方差
+  const speeds = [];
+  for(let i=1;i<all.length;i++){
+    const dt = Math.max(1, all[i].t-all[i-1].t);
+    const dd = Math.hypot(all[i].x-all[i-1].x, all[i].y-all[i-1].y);
+    speeds.push(dd/dt);
+  }
+  const mean = speeds.reduce((a,b)=>a+b,0)/speeds.length || 1;
+  const variance = speeds.reduce((a,b)=>a+(b-mean)*(b-mean),0)/speeds.length;
+  const cv = Math.sqrt(variance)/Math.max(.01,mean);
+  const fluency = Math.round(Math.max(40, 100 - cv*50));
+
+  // layout: bbox 中心偏差
+  const xs = all.map(p=>p.x/W), ys = all.map(p=>p.y/H);
+  const cx = (Math.min(...xs)+Math.max(...xs))/2;
+  const cy = (Math.min(...ys)+Math.max(...ys))/2;
+  const layout = Math.round(Math.max(40, 100 - (Math.abs(cx-0.5)+Math.abs(cy-0.5))*220));
+
+  const total = Math.round(0.45*shape + 0.2*order + 0.2*fluency + 0.15*layout);
+
+  // 反馈话术
+  let msg;
+  if(total>=90) msg = '🎉 这一笔写得非常漂亮！';
+  else if(total>=75) msg = '很不错，再练几遍会更稳。';
+  else if(layout<60) msg = '字可以往格子中间挪一点。';
+  else if(fluency<60) msg = '试着放慢一点，稳稳地写。';
+  else if(shape<60) msg = '注意起笔和收笔的位置。';
+  else msg = '保持练习，每一笔都在进步。';
+
+  return {total, shape, order, fluency, layout, msg};
+}
+
+function submitWrite(){
+  if(!practiceCanvas || practiceCanvas.strokes.length===0){
+    toast('先在格子里写一笔～'); return;
+  }
+  if(CURRENT_MODE==='watch'){ toast('当前是"观摩"模式'); return; }
+  const r = scoreStroke(practiceCanvas.strokes, CURRENT_CHAR);
+  if(!r){ toast('再多写几笔'); return; }
+  const sheet = document.getElementById('scoreSheet');
+  sheet.style.display='block';
+  sheet.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="score">${r.total}<small>/100</small></div>
+      <button class="btn red sm" onclick="nextStroke()">下一笔 →</button>
+    </div>
+    <div class="bars">
+      <span>形</span><div class="bar"><i style="width:${r.shape}%"></i></div><span>${r.shape}</span>
+      <span>顺</span><div class="bar"><i style="width:${r.order}%"></i></div><span>${r.order}</span>
+      <span>势</span><div class="bar"><i style="width:${r.fluency}%"></i></div><span>${r.fluency}</span>
+      <span>距</span><div class="bar"><i style="width:${r.layout}%"></i></div><span>${r.layout}</span>
+    </div>
+    <div class="msg">👤 ${r.msg}</div>
+  `;
+}
+
+function nextStroke(){
+  STAGES_DONE[CURRENT_CHAR] = true;
+  const idx = STROKE_ORDER.indexOf(CURRENT_CHAR);
+  if(idx < STROKE_ORDER.length-1){
+    goPractice(STROKE_ORDER[idx+1]);
+  } else {
+    toast('L1 八画全部完成！🎉');
+    setTimeout(()=>go('p-home'), 1000);
+  }
+}
+
+// ---------- 速写游戏 ----------
+const SPEED_CHARS = ['人','口','大','小','一','二','三','日','月','山','土','王','上','下','中','工'];
+let speedState = null;
+
+function goGame(type){
+  if(type==='speed'){
+    speedState = {score:0, combo:0, idx:0, time:60, timer:null};
+    document.getElementById('speedScore').textContent=0;
+    document.getElementById('speedCombo').textContent=0;
+    document.getElementById('speedChar').textContent = SPEED_CHARS[0];
+    document.getElementById('speedTime').textContent='60"';
+    go('p-speed');
+    setTimeout(()=>{
+      speedCanvas?.clear();
+      speedState.timer = setInterval(()=>{
+        speedState.time--;
+        document.getElementById('speedTime').textContent = speedState.time + '"';
+        if(speedState.time<=0) endSpeed();
+      },1000);
+    }, 200);
+  } else if(type==='cop'){
+    startCop();
+  }
+}
+function clearInk2(){ speedCanvas?.clear(); }
+function submitSpeed(){
+  if(!speedCanvas || speedCanvas.strokes.length===0){ toast('写一个字再提交'); return; }
+  // 简化：按笔画数估分
+  const n = speedCanvas.strokes.length;
+  const score = 60 + Math.min(35, n*8) + Math.floor(Math.random()*10);
+  let add = 0;
+  if(score>=95) add=3;
+  else if(score>=85){ add=2; speedState.combo++; }
+  else if(score>=70){ add=1; speedState.combo=0; }
+  else { add=0; speedState.combo=0; }
+  const bonus = speedState.combo>=3 ? Math.floor(add*0.5) : 0;
+  speedState.score += add + bonus;
+  document.getElementById('speedScore').textContent = speedState.score;
+  document.getElementById('speedCombo').textContent = speedState.combo;
+  toast(`+${add+bonus} 分 · ${score}`);
+  speedState.idx = (speedState.idx+1) % SPEED_CHARS.length;
+  document.getElementById('speedChar').textContent = SPEED_CHARS[speedState.idx];
+  speedCanvas.clear();
+}
+function endSpeed(){
+  clearInterval(speedState.timer);
+  const wrap = document.querySelector('.gm-speed');
+  wrap.innerHTML = `
+    <div class="practice-header">
+      <div class="stage">🏆 速写达人 · 结束</div>
+    </div>
+    <div class="gm-over">
+      <div class="big">${speedState.score}</div>
+      <div class="sub">本局总分 · 最高连击 ${speedState.combo}</div>
+      <button class="btn red" onclick="go('p-home')">返回首页</button>
+    </div>
+  `;
+}
+function exitSpeed(){
+  if(speedState?.timer) clearInterval(speedState.timer);
+  go('p-home');
+}
+
+// ---------- 笔顺警察 ----------
+const COP_QS = [
+  {char:'必', order:['撇','点','横折钩','点','点'], wrong:null},    // 正确
+  {char:'万', order:['横','竖','横折钩'], wrong:2},                  // 错：折应先
+  {char:'火', order:['点','撇','撇','捺'], wrong:null},              // 正确
+  {char:'我', order:['撇','横','竖钩','提','斜钩','撇','点'], wrong:3},// 错
+  {char:'长', order:['撇','横','竖提','捺'], wrong:null}             // 正确
+];
+let copIdx = 0;
+
+function startCop(){
+  copIdx = 0;
+  go('p-cop');
+  renderCop();
+}
+function renderCop(){
+  const q = COP_QS[copIdx];
+  document.getElementById('copQ').textContent = (copIdx+1);
+  document.getElementById('copHint').textContent = '请观察笔顺动画 · 判断对错';
+  const box = document.getElementById('copChar');
+  box.innerHTML = '';
+  // 把字拆成"第 i 笔"假装一笔笔出现
+  const chars = q.char;
+  for(let i=0;i<q.order.length;i++){
+    const span = document.createElement('span');
+    span.textContent = chars;
+    span.style.position='absolute';
+    span.style.left='50%'; span.style.top='0';
+    span.style.transform='translateX(-50%)';
+    span.style.opacity=0;
+    if(i===0) box.appendChild(span);
+  }
+  copPlay(q);
+  document.querySelectorAll('.gm-cop .choice').forEach(c=>c.classList.remove('correct','wrong'));
+}
+function copPlay(q){
+  const box = document.getElementById('copChar');
+  box.innerHTML = '';
+  // 简化表现：字淡入，如果 wrong 不为 null 就在该笔时闪一下红
+  const span = document.createElement('span');
+  span.textContent = q.char;
+  span.style.display='inline-block';
+  span.style.opacity = 0;
+  span.style.transition='opacity .6s, color .2s';
+  box.appendChild(span);
+  setTimeout(()=>{ span.style.opacity=1; }, 50);
+  if(q.wrong!==null){
+    setTimeout(()=>{
+      span.style.color='#c0392b';
+      setTimeout(()=>span.style.color='#1a1a1a', 300);
+    }, 600 + q.wrong*250);
+  }
+}
+function copReplay(){ renderCop(); }
+function copAnswer(sayCorrect){
+  const q = COP_QS[copIdx];
+  const actuallyCorrect = q.wrong===null;
+  const ok = (sayCorrect === actuallyCorrect);
+  const choices = document.querySelectorAll('.gm-cop .choice');
+  if(ok){
+    choices[sayCorrect?0:1].classList.add('correct');
+    toast('✓ 答对了 +10');
+  }else{
+    choices[sayCorrect?0:1].classList.add('wrong');
+    choices[actuallyCorrect?0:1].classList.add('correct');
+    toast('✗ 再看一次笔顺');
+  }
+  setTimeout(()=>{
+    copIdx++;
+    if(copIdx>=COP_QS.length){
+      toast('笔顺警察 · 结束');
+      setTimeout(()=>go('p-home'), 800);
+    } else {
+      renderCop();
+    }
+  }, 900);
+}
+
+// ---------- 初始化 ----------
+buildStageSel();
+
+</script>
+</body>
+</html>
