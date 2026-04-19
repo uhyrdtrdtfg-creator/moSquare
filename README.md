@@ -21,15 +21,17 @@ Xcode 打开后选 iPad 模拟器 → Cmd+R
 
 ---
 
-## 体系结构（34 个 Swift 文件 · 11,900 行）
+## 体系结构（44 个 Swift 文件 · ~16,600 行）
 
 ### 数据层
 ```
 Models/
 ├─ AppState.swift              ~700 行 · 全局状态（UserDefaults 持久化）
 ├─ StrokeData.swift            ~540 行 · StrokeSpec / CharacterDef / 笔画路径数学
-├─ KidsCharacters.swift        ~480 行 · L0 幼儿 19 字（原始批）
-├─ KidsCharactersExtra.swift   ~990 行 · L0 幼儿 30 字（扩展批）
+├─ KidsCharacters.swift        ~480 行 · L0 幼儿第一批字
+├─ KidsCharactersExtra.swift   ~990 行 · L0 幼儿扩展字
+├─ KidsCharactersPack3.swift         · L0 幼儿第三批（家居/动作/颜色/食物）
+├─ Fables.swift                      · 30 篇寓言绘本剧本 + 场景标签
 └─ Encouragements.swift         ~60 行 · 60 条鼓励话术
 ```
 
@@ -72,7 +74,7 @@ Views/
 ├─ GrowthTreeView.swift ~290 行 · 🌳 成长树 5 阶段
 ├─ WeeklyMissionView.swift     · 🏅 本周 3 项挑战
 ├─ CertificateView.swift       · 🎓 毕业证书（卷轴 + 分享）
-├─ StoryView.swift             · 📖 6 篇识字小故事
+├─ StoryView.swift             · 📖 30 篇寓言绘本（翻页阅读 · 卡通背景 · 点字听读）
 ├─ ColorCharView.swift         · 🎨 填色描字
 └─ Games/
    ├─ KidListenTapGame.swift   · 🔊 听音找字
@@ -166,6 +168,14 @@ Phase 1 预览 → Phase 2 逐笔描摹 → Phase 3 贴纸奖励
      → 每日任务 → 周挑战     → 徽章奖励
 ```
 
+### 🎯 30 篇寓言绘本（识字闭环最后一步）
+写过的字在绘本里会自动加亮、点一下能听发音。30 篇 4–5 页的寓言小故事：
+- 改编经典：守株待兔 · 龟兔赛跑 · 两只小羊 · 乌鸦喝水 · 小马过河 · 井底之鱼 …
+- 家常温情：一家人 · 爸爸的手 · 妈妈的心 · 奶奶的花 · 哥哥和妹妹 …
+- 自然小诗：日出 · 下雨 · 下雪 · 风吹云 · 月下的小兔 …
+
+每页一张卡通背景（CC0 扁平插画 4 张 + SwiftUI 自绘 6 场景：夜 / 雨 / 雪 / 屋内 / 池塘 / 日出），文字浮在下方卡片里。滑动翻页。
+
 ---
 
 ## 技术栈
@@ -212,9 +222,9 @@ A: 编辑 `Views/ParentReportView.swift` 里的 `ParentLockGate.question` 生成
 
 ## 项目状态
 
-- ✅ **34 个 Swift 文件 · ~11,900 行**
+- ✅ **44 个 Swift 文件 · ~16,600 行**
 - ✅ xcodebuild 验证：**BUILD SUCCEEDED** · 零警告零错误
-- ✅ iPad Pro 11-inch (M4) 模拟器验证通过
+- ✅ iPad Pro 13-inch (M4) 模拟器验证通过
 - ✅ 所有界面交互路径闭环
 
 开发版本 v1.0（2026-04）
@@ -223,4 +233,11 @@ A: 编辑 `Views/ParentReportView.swift` 里的 `ParentLockGate.question` 生成
 
 ## 许可与声明
 
-本 app 为教育原型项目，所有字形数据、笔顺、配图均为独立制作/开源无水印 emoji。
+本 app 为教育原型项目。字形数据、笔顺、UI 配图均为独立制作。
+
+### 第三方素材
+
+- 绘本卡通背景图 · `墨方.swiftpm/Resources/backgrounds/scene_*.png`
+  - 来源：[Kenney Background Elements](https://kenney.nl/assets/background-elements)
+  - 许可：[CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)（公共领域）
+  - 详见 `Resources/backgrounds/LICENSE.txt`
